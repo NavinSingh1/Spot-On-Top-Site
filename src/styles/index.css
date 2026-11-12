@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Design tokens. Surfaces are stored as RGB channels so Tailwind's
+  opacity modifiers (bg-ink-800/60) keep working in both themes.
+*/
+@layer base {
+  :root,
+  :root.light .force-dark {
+    color-scheme: dark;
+    --ink-950: 3 11 31;
+    --ink-900: 7 15 40;
+    --ink-850: 10 19 48;
+    --ink-800: 17 28 64;
+    --ink-750: 20 34 75;
+    --line: 27 42 87;
+    --line-strong: 45 63 115;
+    --fg: 244 246 251;
+    --fg-muted: 184 192 217;
+    --fg-subtle: 112 122 151;
+    --accent-ink: 245 181 46;
+    --mint-ink: 32 207 162;
+    --iris-ink: 163 153 255;
+    --coral-ink: 243 76 111;
+  }
+
+  :root.light {
+    color-scheme: light;
+    --ink-950: 246 248 252;
+    --ink-900: 238 242 249;
+    --ink-850: 255 255 255;
+    --ink-800: 255 255 255;
+    --ink-750: 228 233 244;
+    --line: 219 225 238;
+    --line-strong: 196 205 226;
+    --fg: 11 20 48;
+    --fg-muted: 68 80 122;
+    --fg-subtle: 107 118 153;
+    --accent-ink: 163 106 18;
+    --mint-ink: 13 128 100;
+    --iris-ink: 98 84 214;
+    --coral-ink: 196 38 76;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-ink-950 font-sans text-fg antialiased;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  ::selection {
+    @apply bg-gold text-navy;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-gold ring-offset-2 ring-offset-ink-950;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
