@@ -86,7 +86,7 @@ export function Navbar() {
   useEffect(() => {
     if (!menuOpen) return undefined;
     const onKeyDown = (event) => event.key === 'Escape' && setMenuOpen(false);
-    const onResize = () => window.innerWidth >= 1280 && setMenuOpen(false);
+    const onResize = () => window.innerWidth >= 1024 && setMenuOpen(false);
     document.addEventListener('keydown', onKeyDown);
     window.addEventListener('resize', onResize);
     return () => {

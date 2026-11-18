@@ -120,7 +120,6 @@ function Inspector({ slot, mode, previewName, onPreviewChange, onBuild }) {
         value={previewName}
         maxLength={32}
         onChange={(event) => onPreviewChange(event.target.value)}
-        hint="Your name appears in the selected placement on the left."
       />
 
       {/* mt-auto pins the button to the bottom so the panel matches the board's height */}

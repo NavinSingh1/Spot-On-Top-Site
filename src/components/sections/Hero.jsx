@@ -30,7 +30,12 @@ function MarketArc({ mode }) {
   return (
     <svg viewBox="0 0 270 112" className="h-auto w-[190px] shrink-0 sm:w-[270px]" role="img" aria-label={mode === 'usa' ? 'Traffic flowing from the USA to India' : 'Traffic flowing from India to the USA'}>
       <path d={path} fill="none" className="stroke-line-strong" strokeWidth="2" strokeDasharray="1 7" strokeLinecap="round" />
-      <circle r="4.5" className="fill-gold" cx={mode === 'usa' ? 30 : 240} cy="62">
+      <circle
+        r="4.5"
+        className="fill-gold"
+        cx={reduced ? (mode === 'usa' ? 30 : 240) : 0}
+        cy={reduced ? 62 : 0}
+      >
         {!reduced && (
           <animateMotion
             key={mode}
@@ -104,7 +109,7 @@ export function Hero() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-y-0 right-0 w-full bg-[radial-gradient(ellipse_at_85%_35%,rgb(var(--ink-800)/0.75),transparent_60%)] lg:w-3/4"
       />
-      <Container className="relative grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,540px)] xl:grid-cols-[minmax(0,1fr)_minmax(0,600px)] xl:gap-14 2xl:grid-cols-[minmax(0,720px)_minmax(0,820px)] 2xl:justify-between">
+      <Container className="relative grid grid-cols-1 items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,540px)] xl:grid-cols-[minmax(0,1fr)_minmax(0,600px)] xl:gap-14 2xl:grid-cols-[minmax(0,720px)_minmax(0,820px)] 2xl:justify-between">
         <div className="max-w-[720px]">
           <p className="flex items-center gap-2.5 text-xs font-bold uppercase tracking-[0.14em] text-fg-muted sm:text-[13px]">
             <span className="flex h-4 w-4 items-center justify-center rounded-full bg-gold/15" aria-hidden="true">

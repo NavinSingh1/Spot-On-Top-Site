@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { RotateCw } from 'lucide-react';
 import { useUI } from '../../context/UIContext';
 import { API_CONFIG } from '../../config/api.config';
@@ -45,15 +45,29 @@ function StatCard({ label, value, tone = 'default', live = false }) {
   );
 }
 
-/** Bar chart of the last 60 one-second samples. Hover, tap or use arrow keys to inspect. */
+/** Line + area chart of the last 60 one-second samples. Hover, tap or use arrow keys to inspect. */
 function VisitorsChart({ history }) {
+  const chartRef = useRef(null);
   const [inspected, setInspected] = useState(null);
-  // Bars start from a soft floor so second-to-second changes stay visible.
-  const max = Math.max(...history) * 1.08;
-  const floor = Math.min(...history) * 0.55;
   const latestIndex = history.length - 1;
   const shownIndex = inspected ?? latestIndex;
   const secondsAgo = latestIndex - shownIndex;
+
+  // Fit the line to the data: the lowest sample sits near the floor, the highest near the top.
+  const min = Math.min(...history);
+  const range = Math.max(...history) - min || 1;
+  const xOf = (index) => (index / latestIndex) * 100;
+  const yOf = (value) => 12 + (1 - (value - min) / range) * 78;
+  const points = history.map((value, index) => `${xOf(index).toFixed(2)},${yOf(value).toFixed(2)}`);
+  const linePath = `M${points.join(' L')}`;
+  const areaPath = `${linePath} L100,100 L0,100 Z`;
+
+  const inspectAt = (clientX) => {
+    const rect = chartRef.current?.getBoundingClientRect();
+    if (!rect || !rect.width) return;
+    const ratio = (clientX - rect.left) / rect.width;
+    setInspected(Math.min(latestIndex, Math.max(0, Math.round(ratio * latestIndex))));
+  };
 
   const onKeyDown = (event) => {
     if (event.key === 'ArrowLeft') {
@@ -67,53 +81,87 @@ function VisitorsChart({ history }) {
     }
   };
 
+  const shownX = xOf(shownIndex);
+  const shownY = yOf(history[shownIndex]);
+
   return (
     <div className="flex h-full flex-col rounded-2xl border border-line bg-ink-900 p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <Kicker className="sm:text-[13px]">Visitors, last 60 seconds</Kicker>
         <p className="text-xs text-fg-muted sm:text-sm">Hover the chart to inspect any second</p>
       </div>
-      <p className="mt-4 text-sm text-fg-muted" aria-live="polite">
-        <span className="font-sans text-2xl font-extrabold tabular-nums text-fg">{history[shownIndex]}</span>{' '}
-        visitors {secondsAgo === 0 ? 'right now' : `${secondsAgo}s ago`}
+      <p className="sr-only" aria-live="polite">
+        {history[shownIndex]} visitors {secondsAgo === 0 ? 'right now' : `${secondsAgo} seconds ago`}
       </p>
+
       <div
+        ref={chartRef}
         tabIndex={0}
         role="img"
-        aria-label={`Visitors per second over the last minute. Ranges from ${Math.min(...history)} to ${Math.max(...history)}. Use left and right arrow keys to inspect.`}
+        aria-label={`Visitors per second over the last minute. Ranges from ${min} to ${Math.max(...history)}. Use left and right arrow keys to inspect.`}
         onKeyDown={onKeyDown}
-        onMouseLeave={() => setInspected(null)}
+        onPointerMove={(event) => inspectAt(event.clientX)}
+        onPointerDown={(event) => inspectAt(event.clientX)}
+        onPointerLeave={() => setInspected(null)}
         onBlur={() => setInspected(null)}
-        className="relative mt-4 flex min-h-[13rem] flex-1 items-end gap-[2px] rounded-lg sm:min-h-[16rem] sm:gap-[3px]"
+        className="relative mt-7 min-h-[13rem] flex-1 cursor-crosshair rounded-sm sm:min-h-[16rem]"
       >
+        {/* Faint guide lines: top, middle and the baseline under the area. */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 flex flex-col justify-between">
-          {[0, 1, 2, 3].map((line) => (
-            <span key={line} className="border-t border-dashed border-line/70" />
+          {[0, 1, 2].map((line) => (
+            <span key={line} className="border-t border-line/60" />
           ))}
         </div>
-        {history.map((value, index) => {
-          const active = index === shownIndex;
-          return (
+
+        <svg
+          aria-hidden="true"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
+        >
+          <path d={areaPath} className="fill-gold/[0.13]" />
+          <path
+            d={linePath}
+            fill="none"
+            className="stroke-gold"
+            strokeWidth="2"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        </svg>
+
+        {/* Vertical guide + readout while inspecting a second. */}
+        {inspected !== null && (
+          <>
             <span
-              key={index}
-              onMouseEnter={() => setInspected(index)}
-              onClick={() => setInspected(index)}
-              className="relative flex h-full flex-1 cursor-crosshair items-end"
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 w-px bg-line-strong"
+              style={{ left: `${shownX}%` }}
+            />
+            <span
+              aria-hidden="true"
+              className={cn(
+                'pointer-events-none absolute -top-1 -translate-y-full whitespace-nowrap rounded-md border border-line-strong bg-ink-800 px-2.5 py-1 text-xs font-semibold text-fg shadow-card',
+                shownX < 15 ? 'translate-x-0' : shownX > 85 ? '-translate-x-full' : '-translate-x-1/2',
+              )}
+              style={{ left: `${shownX}%` }}
             >
-              <span
-                className={cn(
-                  'block w-full rounded-t-[3px] transition-[height,background-color] duration-300',
-                  active ? 'bg-gold' : index === latestIndex ? 'bg-gold/60' : 'bg-iris/45 hover:bg-iris/70',
-                )}
-                style={{ height: `${((value - floor) / (max - floor)) * 100}%` }}
-              />
+              {history[shownIndex]} visitors · {secondsAgo === 0 ? 'now' : `${secondsAgo}s ago`}
             </span>
-          );
-        })}
+          </>
+        )}
+
+        {/* The point being shown: the newest sample by default, with a soft gold halo. */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold shadow-glow"
+          style={{ left: `${shownX}%`, top: `${shownY}%` }}
+        />
       </div>
-      <div className="mt-2 flex justify-between text-[11px] text-fg-subtle" aria-hidden="true">
-        <span>60s ago</span>
-        <span>30s</span>
+
+      <div className="mt-3 flex justify-between text-xs text-fg-muted" aria-hidden="true">
+        <span>60 s ago</span>
         <span>now</span>
       </div>
     </div>
@@ -223,7 +271,7 @@ export function LiveTraffic() {
   const [spinning, setSpinning] = useState(false);
 
   const onRefresh = () => {
-    traffic.refetch({ refresh: true }).catch(() => {});
+    traffic.refetch({ refresh: true }).catch(() => { });
     setSpinning(true);
     window.setTimeout(() => setSpinning(false), 700);
     showToast('Live numbers refreshed.', { tone: 'info', duration: 2400 });

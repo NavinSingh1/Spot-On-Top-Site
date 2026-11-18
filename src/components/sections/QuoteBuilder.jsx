@@ -19,7 +19,7 @@ import { SegmentedControl } from '../ui/SegmentedControl';
 
 function StepCard({ number, title, children }) {
   return (
-    <fieldset className="grid gap-4 rounded-[18px] border border-line bg-ink-800 p-5 sm:p-6 2xl:grid-cols-[236px_minmax(0,1fr)] 2xl:gap-5">
+    <fieldset className="grid gap-4 rounded-[18px] border border-line bg-ink-800 p-5 sm:p-6 xl:flex-1 xl:content-center 2xl:grid-cols-[236px_minmax(0,1fr)] 2xl:gap-5">
       <legend className="sr-only">{title}</legend>
       <div className="flex items-center gap-3 self-start 2xl:pt-1.5">
         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line-strong text-[10px] font-bold text-accent">
@@ -116,8 +116,8 @@ function QuoteBuilderContent() {
   return (
     <>
 
-      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,420px)] 2xl:grid-cols-[minmax(0,1020px)_minmax(0,540px)] 2xl:justify-between">
-        <div className="space-y-4">
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,420px)] xl:items-stretch 2xl:grid-cols-[minmax(0,1020px)_minmax(0,540px)] 2xl:justify-between">
+        <div className="space-y-4 xl:flex xl:flex-col xl:space-y-0 xl:gap-4">
           <StepCard number={1} title="Where it appears">
             <div className="-mx-1 overflow-x-auto px-1 scrollbar-none">
               <SegmentedControl

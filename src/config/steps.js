@@ -15,7 +15,7 @@ export const HOW_IT_WORKS_STEPS = [
     id: 'quote',
     title: 'Get a Quote',
     description: 'See duration, reach and pricing clearly.',
-    panelTitle: 'Get a quote',
+    panelTitle: 'Get quote',
   },
   {
     id: 'live',

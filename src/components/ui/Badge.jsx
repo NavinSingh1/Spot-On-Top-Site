@@ -14,6 +14,8 @@ const BADGE_SIZES = {
   sm: 'px-2.5 py-1 text-[10px]',
   md: 'px-3 py-1 text-xs',
   lg: 'h-7 px-3 text-xs sm:text-sm xl:h-8 xl:px-3.5 xl:text-base',
+  // Status pill on the "How it works" spot cards: slimmer at xl so three cards fit the fixed-height box.
+  card: 'h-7 px-3 text-xs sm:text-sm xl:h-6 xl:text-[13px]',
 };
 
 const DOTS = {

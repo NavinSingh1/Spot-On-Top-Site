@@ -1,10 +1,19 @@
 /** @type {import('tailwindcss').Config} */
 const themed = (name) => `rgb(var(--${name}) / <alpha-value>)`;
 
+const PAGE_ZOOM = 0.8;
+
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
   darkMode: 'class',
   theme: {
+    screens: {
+      sm: '640px',
+      md: '768px',
+      lg: '1024px',
+      xl: `${Math.round(1280 * PAGE_ZOOM)}px`, // 1024px
+      '2xl': `${Math.round(1536 * PAGE_ZOOM)}px`, // 1229px
+    },
     extend: {
       colors: {
         // Theme-aware surfaces (values live in src/styles/index.css)

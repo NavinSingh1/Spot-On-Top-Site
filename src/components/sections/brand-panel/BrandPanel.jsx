@@ -27,8 +27,8 @@ const PLACEMENTS = [
 
 const TABS = [
   { value: 'instagram', label: 'Instagram post', heading: 'Instagram post preview', meta: 'Feed format · 1:1', placement: 'instagram' },
-  { value: 'listing', label: 'Website listing', heading: 'Website listing preview', meta: 'Brand directory card', placement: 'directory' },
-  { value: 'banner', label: 'Home banner', heading: 'Home banner preview', meta: 'Desktop · 1600 × 400', placement: 'banner' },
+  { value: 'listing', label: 'Website listing', heading: 'Website listing preview', meta: 'Brand Directory', placement: 'directory' },
+  { value: 'banner', label: 'Home banner', heading: 'Home banner preview', meta: 'Home · Featured', placement: 'banner' },
 ];
 
 const RULES = {
@@ -132,7 +132,7 @@ function BrandPanelForm({ profile }) {
   return (
     <>
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1fr)]">
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1fr)] lg:items-stretch">
         <div className="min-w-0 rounded-[22px] border border-line bg-ink-900 p-5 sm:p-6">
           <form onSubmit={onSubmit} noValidate>
             <div className="flex items-start justify-between gap-3">
@@ -246,7 +246,7 @@ function BrandPanelForm({ profile }) {
           </div>
         </div>
 
-        <div className="min-w-0 rounded-[22px] border border-line bg-ink-900 p-3 sm:p-5">
+        <div className="flex min-w-0 flex-col rounded-[22px] border border-line bg-ink-900 p-3 sm:p-5">
           <SegmentedControl
             label="Preview placement"
             options={TABS}
@@ -260,7 +260,7 @@ function BrandPanelForm({ profile }) {
             itemClassName="h-10 min-w-0 whitespace-normal px-1.5 text-[11px] leading-tight sm:px-2 sm:text-[13px]"
           />
           <div className="mt-3 border-t border-line" />
-          <div id="panel-preview-panel" role="tabpanel" aria-labelledby={`panel-preview-tab-${tab}`} className="px-1 pt-5 sm:px-3">
+          <div id="panel-preview-panel" role="tabpanel" aria-labelledby={`panel-preview-tab-${tab}`} className="flex flex-1 flex-col px-1 pt-5 sm:px-3">
             <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
               <p className="font-display text-[15px] font-medium text-fg">{activeTab.heading}</p>
               <p className="text-xs text-fg-muted">{activeTab.meta}</p>

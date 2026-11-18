@@ -29,7 +29,6 @@ export function HowItWorks() {
   const profileQuery = useApiQuery('brandProfile'); // GET /brand-profile
   const profile = profileQuery.data;
   const [chosenSlotId, setSlotId] = useState(null);
-  const [months, setMonths] = useState(3);
   const [brandEdits, setBrand] = useState(null);
 
   // Walkthrough defaults come from the API; the visitor's edits override them.
@@ -38,8 +37,7 @@ export function HowItWorks() {
   const brand = brandEdits ?? {
     name: profile?.name ?? '',
     email: profile?.email ?? '',
-    contactName: profile?.contactName ?? '',
-    phone: profile?.phone ?? '',
+    contactCard: [profile?.contactName, profile?.phone].filter(Boolean).join(' · '),
   };
   const progressRef = useRef(0);
 
@@ -90,6 +88,9 @@ export function HowItWorks() {
         <div role="tablist" aria-label="Booking steps" aria-orientation="vertical" className="flex flex-col gap-3 lg:gap-4">
           {HOW_IT_WORKS_STEPS.map((step, index) => {
             const active = index === activeIndex;
+            // Steps already played stay lit with a full gold bar; upcoming steps stay dim.
+            const done = index < activeIndex;
+            const lit = active || done;
             return (
               <button
                 key={step.id}
@@ -101,25 +102,29 @@ export function HowItWorks() {
                 onClick={() => selectStep(index)}
                 className={cn(
                   'relative overflow-hidden rounded-xl border px-5 py-4 text-left transition-colors sm:py-5',
-                  active ? 'border-line-strong bg-ink-800' : 'border-line bg-transparent hover:border-line-strong',
+                  active && 'border-line-strong bg-ink-800',
+                  done && 'border-ink-800 bg-ink-800',
+                  !lit && 'border-line bg-transparent hover:border-line-strong',
                 )}
               >
                 <span className="flex items-baseline gap-4">
-                  <span className="w-5 shrink-0 text-xs font-bold text-accent">{String(index + 1).padStart(2, '0')}</span>
+                  <span className={cn('w-5 shrink-0 text-xs font-bold text-accent', !lit && 'opacity-60')}>
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
                   <span>
-                    <span className={cn('block font-display text-base font-medium sm:text-lg', active ? 'text-fg' : 'text-fg-subtle')}>
+                    <span className={cn('block font-display text-base font-medium sm:text-lg', lit ? 'text-fg' : 'text-fg-subtle')}>
                       {step.title}
                     </span>
-                    <span className={cn('mt-1.5 block text-[13px] leading-relaxed', active ? 'text-fg-muted' : 'text-fg-subtle')}>
+                    <span className={cn('mt-1.5 block text-[13px] leading-relaxed', lit ? 'text-fg-muted' : 'text-fg-subtle')}>
                       {step.description}
                     </span>
                   </span>
                 </span>
-                {active && (
+                {lit && (
                   <span aria-hidden="true" className="absolute inset-x-0 bottom-0 h-0.5 bg-line">
                     <span
                       className="block h-full origin-left bg-gold transition-transform duration-100 ease-linear"
-                      style={{ transform: `scaleX(${reduced ? 1 : progress})` }}
+                      style={{ transform: `scaleX(${done || reduced ? 1 : progress})` }}
                     />
                   </span>
                 )}
@@ -137,19 +142,21 @@ export function HowItWorks() {
           <p className="text-sm font-bold uppercase leading-7 tracking-[0.12em] text-accent sm:text-base lg:mt-[18px] xl:text-xl">
             Step {activeIndex + 1} · {activeStep.panelTitle}
           </p>
+          {/*
+            xl:h-[320px] gives every step's box the same fixed size.
+            Each panel fills it (xl:h-full) instead of deciding the box height itself.
+          */}
           <div
             key={activeStep.id}
-            className="mt-4 animate-rise-in rounded-2xl border border-line bg-ink-900 px-4 py-5 sm:px-8 sm:py-8 lg:mt-[26px] xl:px-12 xl:pb-[38px] xl:pt-10"
+            className="mt-4 animate-rise-in rounded-2xl border border-line bg-ink-900 px-4 py-5 sm:px-8 sm:py-8 lg:mt-[26px] xl:h-[320px] xl:px-9 xl:py-7"
           >
             {!catalog && <Skeleton className="h-80 w-full" />}
             {catalog && activeStep.id === 'choose' && (
               <ChooseSpotPanel slots={catalog.slots} selectedSlotId={slotId} onSelect={setSlotId} />
             )}
             {catalog && activeStep.id === 'brand' && <AddBrandPanel brand={brand} onChange={setBrand} />}
-            {catalog && activeStep.id === 'quote' && (
-              <QuotePanel slotId={slotId} months={months} onMonthsChange={setMonths} brand={brand} />
-            )}
-            {catalog && activeStep.id === 'live' && <LivePanel brand={brand} stats={profile?.stats} />}
+            {catalog && activeStep.id === 'quote' && <QuotePanel slotId={slotId} />}
+            {catalog && activeStep.id === 'live' && <LivePanel />}
           </div>
         </div>
       </div>
